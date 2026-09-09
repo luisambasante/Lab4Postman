@@ -1,4 +1,5 @@
-#Usuarios GraphQL 
+Usuarios GraphQL 
+
 Este proyecto implementa un servicio de datos GraphQL que permite crear, consultar, actualizar y eliminar usuarios en una base de datos MySQL. Ideal para aprender GraphQL, esquemas tipados, resolutores y pruebas funcionales.
 Área: Desarrollo de software y arquitectura de microservicios
 
