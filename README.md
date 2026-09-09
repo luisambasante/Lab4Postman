@@ -4,5 +4,5 @@ Este proyecto implementa un servicio de datos GraphQL que permite crear, consult
 Área: Desarrollo de software y arquitectura de microservicios
 
 
-Competencia
+Competencia: 
 Construir servicios de datos con GraphQL aplicando esquemas tipados, resolutores, persistencia en MySQL y pruebas funcionales, de acuerdo con requisitos de calidad y seguridad.
