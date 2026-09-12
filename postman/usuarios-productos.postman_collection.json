@@ -1,0 +1,282 @@
+{
+  "info": {
+    "name": "Usuarios y Productos GraphQL",
+    "description": "Colección para probar las operaciones CRUD del API GraphQL de usuarios y productos (Express + MySQL).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:4000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "Listar usuarios",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query { users { id name email created_at } }\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            }
+          }
+        },
+        {
+          "name": "Obtener usuario por ID",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query ($id: ID!) { user(id: $id) { id name email created_at } }\",\n  \"variables\": { \"id\": 1 }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            }
+          }
+        },
+        {
+          "name": "Crear usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation ($name: String!, $email: String!) { createUser(name: $name, email: $email) { id name email created_at } }\",\n  \"variables\": { \"name\": \"Nueva Persona\", \"email\": \"nueva@example.com\" }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation ($id: ID!, $name: String, $email: String) { updateUser(id: $id, name: $name, email: $email) { id name email created_at } }\",\n  \"variables\": { \"id\": 1, \"name\": \"Nombre Editado\", \"email\": \"editado@example.com\" }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation ($id: ID!) { deleteUser(id: $id) }\",\n  \"variables\": { \"id\": 1 }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            }
+          }
+        },
+        {
+          "name": "[Negativa] Crear usuario con email duplicado",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation ($name: String!, $email: String!) { createUser(name: $name, email: $email) { id name email } }\",\n  \"variables\": { \"name\": \"Duplicado\", \"email\": \"ana@example.com\" }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            },
+            "description": "Prueba negativa: 'ana@example.com' ya existe (email UNIQUE en la tabla users). Debe responder con un error de GraphQL (violación de restricción UNIQUE en MySQL), no crear el usuario."
+          }
+        },
+        {
+          "name": "[Negativa] Actualizar usuario inexistente",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation ($id: ID!, $name: String) { updateUser(id: $id, name: $name) { id name email } }\",\n  \"variables\": { \"id\": 999999, \"name\": \"No existe\" }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            },
+            "description": "Prueba negativa: el id 999999 no existe en la tabla users. Debe responder con data.updateUser = null, sin error de servidor."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Productos",
+      "item": [
+        {
+          "name": "Listar productos",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query { products { id name description price stock created_at } }\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            }
+          }
+        },
+        {
+          "name": "Obtener producto por ID",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query ($id: ID!) { product(id: $id) { id name description price stock created_at } }\",\n  \"variables\": { \"id\": 1 }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            }
+          }
+        },
+        {
+          "name": "Crear producto",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation ($name: String!, $description: String, $price: Float!, $stock: Int!) { createProduct(name: $name, description: $description, price: $price, stock: $stock) { id name description price stock created_at } }\",\n  \"variables\": { \"name\": \"Monitor 24''\", \"description\": \"Monitor Full HD 24 pulgadas\", \"price\": 199.5, \"stock\": 10 }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar producto",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation ($id: ID!, $price: Float, $stock: Int) { updateProduct(id: $id, price: $price, stock: $stock) { id name description price stock created_at } }\",\n  \"variables\": { \"id\": 1, \"price\": 149.99, \"stock\": 15 }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar producto",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation ($id: ID!) { deleteProduct(id: $id) }\",\n  \"variables\": { \"id\": 1 }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            }
+          }
+        },
+        {
+          "name": "[Negativa] Crear producto con precio inválido",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation ($name: String!, $price: Float!, $stock: Int!) { createProduct(name: $name, price: $price, stock: $stock) { id name price stock } }\",\n  \"variables\": { \"name\": \"Producto inválido\", \"price\": \"no-es-un-numero\", \"stock\": 5 }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            },
+            "description": "Prueba negativa: 'price' recibe un string en vez de Float. Debe responder con un error de validación de GraphQL, sin crear el producto."
+          }
+        },
+        {
+          "name": "[Negativa] Eliminar producto inexistente",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation ($id: ID!) { deleteProduct(id: $id) }\",\n  \"variables\": { \"id\": 999999 }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["graphql"]
+            },
+            "description": "Prueba negativa: el id 999999 no existe en la tabla products. Debe responder con data.deleteProduct = false, sin error de servidor."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,8 +1,8 @@
-# Usuarios GraphQL
+# Usuarios y Productos GraphQL
 
 Servicio de datos GraphQL que permite crear, consultar, actualizar y
-eliminar usuarios en una base de datos MySQL. Ideal para aprender
-GraphQL, esquemas tipados, resolutores y pruebas funcionales.
+eliminar usuarios y productos en una base de datos MySQL. Ideal para
+aprender GraphQL, esquemas tipados, resolutores y pruebas funcionales.
 
 **Área:** Desarrollo de software y arquitectura de microservicios
 
@@ -13,13 +13,17 @@ funcionales, de acuerdo con requisitos de calidad y seguridad.
 ## Estructura del proyecto
 
 ```
-Lab4Postman/
+usuarios-graphql/
 ├── src/
-│   ├── db.js                      # Pool de conexión a MySQL (mysql2/promise)
-│   ├── schema.js                  # Tipos, queries y mutaciones GraphQL + resolutores
+│   ├── config/
+│   │   └── db.js                  # Pool de conexión a MySQL (mysql2/promise)
+│   ├── graphql/
+│   │   ├── schema.js              # Tipos, queries y mutaciones (SDL, buildSchema)
+│   │   └── resolvers.js           # Resolutores de Usuario y Producto
 │   └── index.js                   # Servidor Express que expone /graphql
-├── database.sql                   # Script de creación de la BD y datos de ejemplo
-├── postman_collection.json        # Colección de Postman con las 5 operaciones CRUD
+├── postman/
+│   └── usuarios-productos.postman_collection.json   # Colección de Postman
+├── database.sql                   # Script de creación de la BD (users, products) y datos de ejemplo
 ├── package.json
 ├── .env.example                   # Plantilla de variables de entorno
 └── .env                           # Variables de entorno reales (NO se sube al repo)
@@ -27,15 +31,18 @@ Lab4Postman/
 
 ### Código fuente
 
-- **`src/db.js`**: crea un *pool* de conexiones MySQL a partir de las
-  variables de entorno (`DB_HOST`, `DB_PORT`, `DB_USER`,
+- **`src/config/db.js`**: crea un *pool* de conexiones MySQL a partir
+  de las variables de entorno (`DB_HOST`, `DB_PORT`, `DB_USER`,
   `DB_PASSWORD`, `DB_NAME`). Es el único punto donde se configura la
   conexión a la base de datos.
-- **`src/schema.js`**: define el esquema GraphQL con `buildSchema`
-  (tipo `User`, queries `users`/`user`, mutaciones
-  `createUser`/`updateUser`/`deleteUser`) y los resolutores
-  correspondientes. Todas las consultas SQL usan parámetros (`?`) en
-  vez de concatenar strings, para evitar inyección SQL.
+- **`src/graphql/schema.js`**: define el esquema GraphQL con
+  `buildSchema` — tipos `User` y `Product`, queries
+  `users`/`user`/`products`/`product`, mutaciones
+  `createUser`/`updateUser`/`deleteUser` y
+  `createProduct`/`updateProduct`/`deleteProduct`.
+- **`src/graphql/resolvers.js`**: implementa los resolutores para cada
+  query/mutation del esquema. Todas las consultas SQL usan parámetros
+  (`?`) en vez de concatenar strings, para evitar inyección SQL.
 - **`src/index.js`**: levanta un servidor Express, habilita CORS y
   expone el esquema en la ruta `/graphql` usando `graphql-http`.
 
@@ -76,8 +83,8 @@ Lab4Postman/
    DB_NAME=graphql_db
    ```
 
-4. Crear la base de datos y la tabla `users` ejecutando
-   `database.sql` en tu servidor MySQL, por ejemplo:
+4. Crear la base de datos y las tablas `users` y `products`
+   ejecutando `database.sql` en tu servidor MySQL, por ejemplo:
 
    ```bash
    mysql -u root -p < database.sql
@@ -115,15 +122,30 @@ type User {
   created_at: String
 }
 
+type Product {
+  id: ID!
+  name: String!
+  description: String
+  price: Float!
+  stock: Int!
+  created_at: String
+}
+
 type Query {
   users: [User!]!
   user(id: ID!): User
+  products: [Product!]!
+  product(id: ID!): Product
 }
 
 type Mutation {
   createUser(name: String!, email: String!): User!
   updateUser(id: ID!, name: String, email: String): User
   deleteUser(id: ID!): Boolean!
+
+  createProduct(name: String!, description: String, price: Float!, stock: Int!): Product!
+  updateProduct(id: ID!, name: String, description: String, price: Float, stock: Int): Product
+  deleteProduct(id: ID!): Boolean!
 }
 ```
 
@@ -186,24 +208,88 @@ mutation {
 }
 ```
 
+**Listar productos**
+
+```graphql
+query {
+  products {
+    id
+    name
+    description
+    price
+    stock
+    created_at
+  }
+}
+```
+
+**Obtener un producto por ID**
+
+```graphql
+query {
+  product(id: 1) {
+    id
+    name
+    price
+    stock
+  }
+}
+```
+
+**Crear un producto**
+
+```graphql
+mutation {
+  createProduct(name: "Monitor 24''", description: "Monitor Full HD 24 pulgadas", price: 199.5, stock: 10) {
+    id
+    name
+    price
+    stock
+  }
+}
+```
+
+**Actualizar un producto**
+
+```graphql
+mutation {
+  updateProduct(id: 1, price: 149.99, stock: 15) {
+    id
+    name
+    price
+    stock
+  }
+}
+```
+
+**Eliminar un producto**
+
+```graphql
+mutation {
+  deleteProduct(id: 1)
+}
+```
+
 ## Pruebas con Postman
 
-El repositorio incluye [`postman_collection.json`](./postman_collection.json)
-con las 5 operaciones CRUD y 2 pruebas negativas ya armadas.
+El repositorio incluye
+[`postman/usuarios-productos.postman_collection.json`](./postman/usuarios-productos.postman_collection.json)
+con dos carpetas — **Usuarios** y **Productos** —, cada una con sus 5
+operaciones CRUD y 2 pruebas negativas.
 
-1. Abrir Postman y usar **Import** → seleccionar `postman_collection.json`.
+1. Abrir Postman y usar **Import** → seleccionar
+   `postman/usuarios-productos.postman_collection.json`.
 2. La colección define la variable `base_url` (por defecto
    `http://localhost:4000`); ajústala si tu servidor corre en otro
    puerto.
 3. Con el servidor corriendo (`npm run dev`), ejecutar en orden las
-   peticiones: *Listar usuarios*, *Obtener usuario por ID*, *Crear
-   usuario*, *Actualizar usuario*, *Eliminar usuario*. Todas se envían
-   como `POST` a `{{base_url}}/graphql` con el cuerpo en formato JSON
+   peticiones de cada carpeta. Todas se envían como `POST` a
+   `{{base_url}}/graphql` con el cuerpo en formato JSON
    (`{ "query": "...", "variables": { ... } }`).
 
 ### Pruebas negativas
 
-La colección incluye además dos casos de error esperados:
+La colección incluye cuatro casos de error esperados:
 
 - **`[Negativa] Crear usuario con email duplicado`**: intenta crear un
   usuario con un email que ya existe (`ana@example.com`). Debe fallar
@@ -211,6 +297,12 @@ La colección incluye además dos casos de error esperados:
   llegar a insertar el registro.
 - **`[Negativa] Actualizar usuario inexistente`**: intenta actualizar
   un `id` que no existe (`999999`). Debe responder `data.updateUser: null`
+  en vez de un error de servidor.
+- **`[Negativa] Crear producto con precio inválido`**: envía un string
+  en el argumento `price` (que es `Float!`). Debe fallar con un error
+  de validación de GraphQL, sin crear el producto.
+- **`[Negativa] Eliminar producto inexistente`**: intenta eliminar un
+  `id` que no existe (`999999`). Debe responder `data.deleteProduct: false`
   en vez de un error de servidor.
 
 ## Seguridad
