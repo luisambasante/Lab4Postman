@@ -189,7 +189,7 @@ mutation {
 ## Pruebas con Postman
 
 El repositorio incluye [`postman_collection.json`](./postman_collection.json)
-con las 5 operaciones CRUD ya armadas.
+con las 5 operaciones CRUD y 2 pruebas negativas ya armadas.
 
 1. Abrir Postman y usar **Import** → seleccionar `postman_collection.json`.
 2. La colección define la variable `base_url` (por defecto
@@ -200,6 +200,18 @@ con las 5 operaciones CRUD ya armadas.
    usuario*, *Actualizar usuario*, *Eliminar usuario*. Todas se envían
    como `POST` a `{{base_url}}/graphql` con el cuerpo en formato JSON
    (`{ "query": "...", "variables": { ... } }`).
+
+### Pruebas negativas
+
+La colección incluye además dos casos de error esperados:
+
+- **`[Negativa] Crear usuario con email duplicado`**: intenta crear un
+  usuario con un email que ya existe (`ana@example.com`). Debe fallar
+  por la restricción `UNIQUE` de la columna `email` en MySQL, sin
+  llegar a insertar el registro.
+- **`[Negativa] Actualizar usuario inexistente`**: intenta actualizar
+  un `id` que no existe (`999999`). Debe responder `data.updateUser: null`
+  en vez de un error de servidor.
 
 ## Seguridad
 

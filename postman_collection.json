@@ -101,6 +101,44 @@
           "path": ["graphql"]
         }
       }
+    },
+    {
+      "name": "[Negativa] Crear usuario con email duplicado",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"query\": \"mutation ($name: String!, $email: String!) { createUser(name: $name, email: $email) { id name email } }\",\n  \"variables\": { \"name\": \"Duplicado\", \"email\": \"ana@example.com\" }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/graphql",
+          "host": ["{{base_url}}"],
+          "path": ["graphql"]
+        },
+        "description": "Prueba negativa: 'ana@example.com' ya existe (email UNIQUE en la tabla users). Debe responder con un error de GraphQL (violación de restricción UNIQUE en MySQL), no crear el usuario."
+      }
+    },
+    {
+      "name": "[Negativa] Actualizar usuario inexistente",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"query\": \"mutation ($id: ID!, $name: String) { updateUser(id: $id, name: $name) { id name email } }\",\n  \"variables\": { \"id\": 999999, \"name\": \"No existe\" }\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/graphql",
+          "host": ["{{base_url}}"],
+          "path": ["graphql"]
+        },
+        "description": "Prueba negativa: el id 999999 no existe en la tabla users. Debe responder con data.updateUser = null, sin error de servidor."
+      }
     }
   ]
 }
